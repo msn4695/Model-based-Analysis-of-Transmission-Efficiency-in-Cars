@@ -1,0 +1,93 @@
+---
+title: "Model based Analysis of Transmission Efficiency in Cars"
+author: "Hafiz Mohammad Sohaib Naim Nizami"
+output: 
+    pdf_document: default
+    html_document:
+        keep_md: yes
+---
+
+<!-- Sjustifying text -->
+<style>
+    body {
+        text-align: justify;
+    }
+</style>
+<hr>
+
+```{r general, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(fig.width=4, fig.height=2, fig.align = "center") 
+```  
+  
+## 1. Executive Summary  
+
+This study involves analysis of Motor Trend's 'mtcars' data set to test whether a manual transmission is better than an automatic transmission for miles per gallon (MPG) performance of a car. The statistical testing and modeling is applied on the data set to test this hypothesis. The results of the study conclude that, in fact, manual transmission is better for MPG than an automatic transmission.  
+
+## 2. Problem Description  
+
+As Motor Trend prides itself in pioneer research on cars, the task is to find the impact of the type of transmission on the mileage (in miles per gallon) of cars; furthermore, the results are to be reported with substantial statistical evidence to support the particular outcome.  
+
+The questions that are needed to be answered are:  
+1. Is an automatic or manual transmission better for MPG?  
+2. How different is the MPG between automatic manual transmission?  
+
+Following discussion contains the modeling and conclusion of the research.  
+
+</hr>
+
+## 3. Investigation  
+
+This section contains the initial EDA of data, possible answers to assigned questions, analysis, and graphical representation of the results.  
+
+### 3.1 Exploratory Data Analysis  
+
+To begin with, lets just have a brief EDA of the mtcars data set.
+```{r eda, cache = T, fig.align='center'}
+# Loading necessary libraries and data
+library(ggplot2)
+data(mtcars)
+
+# getting an overview of data
+mtcars[sample(1:nrow(mtcars), size = 3),]
+str(mtcars)
+
+# Formatting necessary variables
+mtcars$am[mtcars$am == "0"] <- "Automatic"
+mtcars$am[mtcars$am == "1"] <- "Manual"
+
+# Pre-liminary tests
+test <- t.test(mpg ~ am, data = mtcars)
+test$conf.int
+test$p.value
+```
+
+```{r boxPlot, cache = TRUE, echo = FALSE}
+# Initial visualization 
+ g <- ggplot(mtcars, aes(x = am, y = mpg, fill = am))
+ g <- g + geom_boxplot()
+(g <- g + labs(x = "Transmission Type", 
+               y = "Miles per Gallon (MPG)", 
+               title = "MPG change according to Transmission"))
+```    
+  
+Here, the boxplot and t-test show that MPG is higher for manual transmission than for automatic transmission.  
+
+### 3.2 Answers to Assigned Questions  
+
+#### 3.2.1 Is an automatic or manual transmission better for MPG?  
+
+First of all, we assume our null hypothesis that there is no difference in miles per gallon (mileage) based on the transmission type. In other words, the difference in the mean of the MPG based on transmission is zero. However, results of T-test show that there exists a difference in MPG of automatic and manual transmissions. This leads to the rejection of null hypothesis since the p-Value (`r test$p.value`) of the results is below our preset alpha level of 0.05. Furthermore, the confidence interval does not contain zero.  
+  
+To further ascertain the results, lets fit a model and analyze the coefficients.
+```{r firstModel, cache = T}
+fit1 <- lm(mpg ~ am, data = mtcars)
+round(summary(fit1)$coef, 3)
+```
+Here, the model further verifies and supports the alternative hypothesis that **manual** transmission is better than **automatic** transmission. The slope of this model depicts that an increase of `r round(coef(fit1)[2], 3)` in MPG is expected when changing from automatic to manual transmission. Moreover, the confidence interval of the t-test (`r round(test$conf, 3)`) further ascertains this point as moving from manual to automatic transmission decreases the MPG within the interval.  
+
+#### 3.2.2 How different is the MPG between automatic manual transmission?  
+  
+Again having a look at the model coefficients, one can derive that the intercept **(`r round(coef(fit1)[1],3)`)** of the model shows the average value of the MPG for **automatic** transmission. The beta1 coefficient (slope) of this model shows that when we change from from automatic to **manual** transmission, average value of MPG increases by a number of **`r round(coef(fit1)[2],3)`**. Furthermore, p-values (`r summary(fit1)$coefficients[,4]`) show that the model is statistically significant.  
+
+## 4. Conclusion  
+In view of all these, one can infer that **manual** transmission is **better** than **automatic** transmission for MPG. Moreover, the t-test and model results verify statistical significance of this hypothesis.
