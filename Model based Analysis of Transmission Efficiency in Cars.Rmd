@@ -2,9 +2,9 @@
 title: "Model based Analysis of Transmission Efficiency in Cars"
 author: "Hafiz Mohammad Sohaib Naim Nizami"
 output: 
-    pdf_document: default
     html_document:
         keep_md: yes
+    pdf_document: default
 ---
 
 <!-- Sjustifying text -->
